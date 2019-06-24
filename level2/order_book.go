@@ -4,19 +4,26 @@ import (
 	"encoding/json"
 
 	"github.com/JetBlink/order_book/helper"
-
-	"github.com/JetBlink/order_book/order_book"
 	"github.com/JetBlink/order_book/skiplist"
 	"github.com/shopspring/decimal"
 )
 
+const (
+	AskSide = "asks"
+	BidSide = "bids"
+)
+
 type OrderBook struct {
-	*order_book.OrderBook
+	Sequence uint64             //Sequence || UpdateID
+	Asks     *skiplist.SkipList //ask 是 要价，喊价 卖家 卖单 Sort price from low to high
+	Bids     *skiplist.SkipList //bid 是 投标，买家 买单 Sort price from high to low
 }
 
 func NewOrderBook() *OrderBook {
 	return &OrderBook{
-		order_book.NewOrderBook(newAskOrders(), newBidOrders()),
+		0,
+		newAskOrders(),
+		newBidOrders(),
 	}
 }
 
@@ -72,15 +79,15 @@ func (fb *OrderBook) AddBid(order *Order) {
 
 func (fb *OrderBook) MarshalJSON() ([]byte, error) {
 	return json.Marshal(map[string]interface{}{
-		"sequence":         fb.Sequence,
-		order_book.AskSide: fb.GetPartOrderBookBySide(order_book.AskSide, 0),
-		order_book.BidSide: fb.GetPartOrderBookBySide(order_book.BidSide, 0),
+		"sequence": fb.Sequence,
+		AskSide:    fb.GetPartOrderBookBySide(AskSide, 0),
+		BidSide:    fb.GetPartOrderBookBySide(BidSide, 0),
 	})
 }
 
 func (fb *OrderBook) GetPartOrderBookBySide(side string, number int) [][2]string {
 	var it skiplist.Iterator
-	if side == order_book.AskSide {
+	if side == AskSide {
 		it = fb.Asks.Iterator()
 		number = helper.Min(number, fb.Asks.Len())
 		if number == 0 {
