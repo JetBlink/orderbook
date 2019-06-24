@@ -1,7 +1,6 @@
 package level2
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/shopspring/decimal"
@@ -16,12 +15,12 @@ type Order struct {
 func NewOrder(price string, size string) (order *Order, err error) {
 	priceValue, err := decimal.NewFromString(price)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("NewOrder failed, price: `%s`, error: %v", price, err))
+		return nil, fmt.Errorf("NewOrder failed, price: `%s`, error: %v", price, err)
 	}
 
 	sizeValue, err := decimal.NewFromString(size)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("NewOrder failed, size: `%s`, error: %v", size, err))
+		return nil, fmt.Errorf("NewOrder failed, size: `%s`, error: %v", size, err)
 	}
 
 	order = &Order{

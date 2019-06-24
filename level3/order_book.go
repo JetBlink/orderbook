@@ -2,7 +2,6 @@ package level3
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/JetBlink/order_book/helper"
@@ -126,7 +125,7 @@ func (ob *OrderBook) MatchOrder(side string, orderId string, size string) error 
 
 	newSize := order.Size.Sub(sizeValue)
 	if newSize.LessThan(decimal.Zero) {
-		return errors.New(fmt.Sprintf("oldSize: %s, size: %s, sub result less than zero", order.Size.String(), size))
+		return fmt.Errorf("oldSize: %s, size: %s, sub result less than zero", order.Size.String(), size)
 	}
 
 	order.Size = newSize
