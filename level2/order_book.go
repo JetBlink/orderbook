@@ -54,7 +54,19 @@ func newBidOrders() *skiplist.SkipList {
 	}, isEqual)
 }
 
-func (fb *OrderBook) addToOrderBookSide(book *skiplist.SkipList, order *Order) {
+func (ob *OrderBook) getOrderBookBySide(side string) *skiplist.SkipList {
+	if side == AskSide {
+		return ob.Asks
+	}
+
+	return ob.Bids
+}
+
+func (ob *OrderBook) SetOrder(side string, order *Order) {
+	ob.addToOrderBookSide(ob.getOrderBookBySide(side), order)
+}
+
+func (ob *OrderBook) addToOrderBookSide(book *skiplist.SkipList, order *Order) {
 	//if !order.Size.Equal(decimal.Zero) { // New price level
 	//	book.Set(order.Price, order)
 	//} else if _, ok := book.Get(order.Price); ok { // Existing price level and Quantity Equal 0
@@ -69,36 +81,28 @@ func (fb *OrderBook) addToOrderBookSide(book *skiplist.SkipList, order *Order) {
 	book.Set(order.Price, order)
 }
 
-func (fb *OrderBook) AddAsk(order *Order) {
-	fb.addToOrderBookSide(fb.Asks, order)
-}
-
-func (fb *OrderBook) AddBid(order *Order) {
-	fb.addToOrderBookSide(fb.Bids, order)
-}
-
-func (fb *OrderBook) MarshalJSON() ([]byte, error) {
+func (ob *OrderBook) MarshalJSON() ([]byte, error) {
 	return json.Marshal(map[string]interface{}{
-		"sequence": fb.Sequence,
-		AskSide:    fb.GetPartOrderBookBySide(AskSide, 0),
-		BidSide:    fb.GetPartOrderBookBySide(BidSide, 0),
+		"sequence": ob.Sequence,
+		AskSide:    ob.GetPartOrderBookBySide(AskSide, 0),
+		BidSide:    ob.GetPartOrderBookBySide(BidSide, 0),
 	})
 }
 
-func (fb *OrderBook) GetPartOrderBookBySide(side string, number int) [][2]string {
+func (ob *OrderBook) GetPartOrderBookBySide(side string, number int) [][2]string {
 	var it skiplist.Iterator
 	if side == AskSide {
-		it = fb.Asks.Iterator()
-		number = helper.Min(number, fb.Asks.Len())
+		it = ob.Asks.Iterator()
+		number = helper.Min(number, ob.Asks.Len())
 		if number == 0 {
-			number = fb.Asks.Len()
+			number = ob.Asks.Len()
 		}
 	} else {
-		it = fb.Bids.Iterator()
-		number = helper.Min(number, fb.Bids.Len())
+		it = ob.Bids.Iterator()
+		number = helper.Min(number, ob.Bids.Len())
 
 		if number == 0 {
-			number = fb.Bids.Len()
+			number = ob.Bids.Len()
 		}
 	}
 
