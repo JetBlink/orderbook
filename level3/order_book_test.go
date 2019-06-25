@@ -289,7 +289,7 @@ func TestFullOrderBook_RemoveBidOrderByIdReal(t *testing.T) {
 		"5cf10b0b89fc846350e8437a",
 		"8268.3",
 		"0.3141",
-		1559300877511654100,
+		1559300877511654101,
 	)
 	if err != nil {
 		t.Error(err)
