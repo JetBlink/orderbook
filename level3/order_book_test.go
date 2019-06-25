@@ -4,9 +4,8 @@ import (
 	"log"
 	"testing"
 
-	"github.com/shopspring/decimal"
-
 	"github.com/JetBlink/order_book/helper"
+	"github.com/shopspring/decimal"
 )
 
 func TestOrderBook_AddAsk(t *testing.T) {
