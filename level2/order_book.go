@@ -3,14 +3,9 @@ package level2
 import (
 	"encoding/json"
 
-	"github.com/JetBlink/orderbook/helper"
+	"github.com/JetBlink/orderbook/base"
 	"github.com/JetBlink/orderbook/skiplist"
 	"github.com/shopspring/decimal"
-)
-
-const (
-	AskSide = "asks"
-	BidSide = "bids"
 )
 
 type OrderBook struct {
@@ -54,52 +49,57 @@ func newBidOrders() *skiplist.SkipList {
 	}, isEqual)
 }
 
-func (ob *OrderBook) getOrderBookBySide(side string) *skiplist.SkipList {
-	if side == AskSide {
-		return ob.Asks
+func (ob *OrderBook) getOrderBookBySide(side string) (*skiplist.SkipList, error) {
+	if err := base.CheckSide(side); err != nil {
+		return nil, err
 	}
 
-	return ob.Bids
+	if side == base.AskSide {
+		return ob.Asks, nil
+	}
+
+	return ob.Bids, nil
 }
 
-func (ob *OrderBook) SetOrder(side string, order *Order) {
-	ob.addToOrderBookSide(ob.getOrderBookBySide(side), order)
-}
-
-func (ob *OrderBook) addToOrderBookSide(book *skiplist.SkipList, order *Order) {
-	//if !order.Size.Equal(decimal.Zero) { // New price level
-	//	book.Set(order.Price, order)
-	//} else if _, ok := book.Get(order.Price); ok { // Existing price level and Quantity Equal 0
-	//	book.Delete(order.Price)
-	//}
+//addToOrderBookSide
+func (ob *OrderBook) SetOrder(side string, order *Order) error {
+	orderBook, err := ob.getOrderBookBySide(side)
+	if err != nil {
+		return err
+	}
 
 	if order.Size.Equal(decimal.Zero) {
-		book.Delete(order.Price)
-		return
+		orderBook.Delete(order.Price)
+		return nil
 	}
 
-	book.Set(order.Price, order)
+	orderBook.Set(order.Price, order)
+	return nil
 }
 
 func (ob *OrderBook) MarshalJSON() ([]byte, error) {
 	return json.Marshal(map[string]interface{}{
-		"sequence": ob.Sequence,
-		AskSide:    ob.GetPartOrderBookBySide(AskSide, 0),
-		BidSide:    ob.GetPartOrderBookBySide(BidSide, 0),
+		"sequence":   ob.Sequence,
+		base.AskSide: ob.GetPartOrderBookBySide(base.AskSide, 0),
+		base.BidSide: ob.GetPartOrderBookBySide(base.BidSide, 0),
 	})
 }
 
 func (ob *OrderBook) GetPartOrderBookBySide(side string, number int) [][2]string {
+	if err := base.CheckSide(side); err != nil {
+		return nil
+	}
+
 	var it skiplist.Iterator
-	if side == AskSide {
+	if side == base.AskSide {
 		it = ob.Asks.Iterator()
-		number = helper.Min(number, ob.Asks.Len())
+		number = base.Min(number, ob.Asks.Len())
 		if number == 0 {
 			number = ob.Asks.Len()
 		}
 	} else {
 		it = ob.Bids.Iterator()
-		number = helper.Min(number, ob.Bids.Len())
+		number = base.Min(number, ob.Bids.Len())
 
 		if number == 0 {
 			number = ob.Bids.Len()

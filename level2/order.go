@@ -10,9 +10,10 @@ import (
 type Order struct {
 	Price decimal.Decimal
 	Size  decimal.Decimal
+	Info  interface{}
 }
 
-func NewOrder(price string, size string) (order *Order, err error) {
+func NewOrder(price string, size string, info interface{}) (order *Order, err error) {
 	priceValue, err := decimal.NewFromString(price)
 	if err != nil {
 		return nil, fmt.Errorf("NewOrder failed, price: `%s`, error: %v", price, err)
@@ -26,6 +27,7 @@ func NewOrder(price string, size string) (order *Order, err error) {
 	order = &Order{
 		Price: priceValue,
 		Size:  sizeValue,
+		Info:  info,
 	}
 
 	return

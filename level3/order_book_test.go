@@ -4,21 +4,21 @@ import (
 	"log"
 	"testing"
 
-	"github.com/JetBlink/orderbook/helper"
+	"github.com/JetBlink/orderbook/base"
 	"github.com/shopspring/decimal"
 )
 
 func TestOrderBook_AddAsk(t *testing.T) {
 	orderBook := NewOrderBook()
-	order, err := NewOrder("abc", "10", "20", uint64(100))
+	order, err := NewOrder("abc", base.AskSide, "10", "20", uint64(100), nil)
 	if err != nil {
 		t.Error(err)
 	}
 
-	orderBook.AddOrder(AskSide, order)
-	orderBook.AddOrder(AskSide, order)
+	orderBook.AddOrder(order)
+	orderBook.AddOrder(order)
 
-	log.Println(helper.ToJsonString(orderBook))
+	log.Println(base.ToJsonString(orderBook))
 }
 
 func TestOrderBook_AddAskOrder(t *testing.T) {
@@ -27,38 +27,44 @@ func TestOrderBook_AddAskOrder(t *testing.T) {
 	//价格第二
 	order, err := NewOrder(
 		"a2",
+		base.AskSide,
 		"1.102",
 		"2.2",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(AskSide, order)
+	orderBook.AddOrder(order)
 
 	//价格第一
 	order, err = NewOrder(
 		"a1",
+		base.AskSide,
 		"1.101",
 		"1.1",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(AskSide, order)
+	orderBook.AddOrder(order)
 
 	//价格第三
 	order, err = NewOrder(
 		"a3",
+		base.AskSide,
 		"1.103",
 		"3.3",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(AskSide, order)
+	orderBook.AddOrder(order)
 
 	//价格第二，时间同之前
 	//order, err = NewOrder(
@@ -70,19 +76,21 @@ func TestOrderBook_AddAskOrder(t *testing.T) {
 	//if err != nil {
 	//	t.Error(err)
 	//}
-	//orderBook.AddOrder(AskSide, order)
+	//orderBook.AddOrder(helper.AskSide, order)
 
 	//价格第二，时间最后
 	order, err = NewOrder(
 		"a5",
+		base.AskSide,
 		"1.102",
 		"5.5",
 		1559300877511654101,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(AskSide, order)
+	orderBook.AddOrder(order)
 
 	if orderBook.Asks.Len() != len(orderBook.OrderPool) {
 		t.Error("len error")
@@ -92,7 +100,7 @@ func TestOrderBook_AddAskOrder(t *testing.T) {
 		t.Error("length error")
 	}
 
-	log.Println(helper.ToJsonString(orderBook))
+	log.Println(base.ToJsonString(orderBook))
 }
 
 func TestFullOrderBook_AddAskOrderWithExistOrder(t *testing.T) {
@@ -101,26 +109,30 @@ func TestFullOrderBook_AddAskOrderWithExistOrder(t *testing.T) {
 	//价格第二
 	order, err := NewOrder(
 		"a2",
+		base.BidSide,
 		"1.102",
 		"2.2",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(BidSide, order)
+	orderBook.AddOrder(order)
 
 	//订单 id 相同
 	order, err = NewOrder(
 		"a2",
+		base.BidSide,
 		"1.102",
 		"1.1",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(BidSide, order)
+	orderBook.AddOrder(order)
 
 	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
 		t.Error("len error")
@@ -130,7 +142,7 @@ func TestFullOrderBook_AddAskOrderWithExistOrder(t *testing.T) {
 		t.Error("length error")
 	}
 
-	log.Println(helper.ToJsonString(orderBook))
+	log.Println(base.ToJsonString(orderBook))
 }
 
 func TestFullOrderBook_AddBidOrder(t *testing.T) {
@@ -139,38 +151,44 @@ func TestFullOrderBook_AddBidOrder(t *testing.T) {
 	//价格第二
 	order, err := NewOrder(
 		"a2",
+		base.BidSide,
 		"1.102",
 		"2.2",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(BidSide, order)
+	orderBook.AddOrder(order)
 
 	//价格第一
 	order, err = NewOrder(
 		"a1",
+		base.BidSide,
 		"1.101",
 		"1.1",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(BidSide, order)
+	orderBook.AddOrder(order)
 
 	//价格第三
 	order, err = NewOrder(
 		"a3",
+		base.BidSide,
 		"1.103",
 		"3.3",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(BidSide, order)
+	orderBook.AddOrder(order)
 
 	//价格第二，时间同之前
 	//order, err = NewOrder(
@@ -182,19 +200,21 @@ func TestFullOrderBook_AddBidOrder(t *testing.T) {
 	//if err != nil {
 	//	t.Error(err)
 	//}
-	//orderBook.AddOrder(BidSide, order)
+	//orderBook.AddOrder(helper.BidSide, order)
 
 	//价格第二，时间最后
 	order, err = NewOrder(
 		"a5",
+		base.BidSide,
 		"1.102",
 		"5.5",
 		1559300877511654101,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(BidSide, order)
+	orderBook.AddOrder(order)
 
 	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
 		t.Error("len error")
@@ -204,7 +224,7 @@ func TestFullOrderBook_AddBidOrder(t *testing.T) {
 		t.Error("length error")
 	}
 
-	log.Println(helper.ToJsonString(orderBook))
+	log.Println(base.ToJsonString(orderBook))
 }
 
 func TestFullOrderBook_RemoveAskOrder(t *testing.T) {
@@ -213,26 +233,30 @@ func TestFullOrderBook_RemoveAskOrder(t *testing.T) {
 	//价格第二
 	order, err := NewOrder(
 		"a2",
+		base.BidSide,
 		"1.102",
 		"2.2",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(BidSide, order)
+	orderBook.AddOrder(order)
 
 	//订单 id 相同
 	order, err = NewOrder(
 		"a2",
+		base.BidSide,
 		"1.102",
 		"1.1",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.removeOrder(BidSide, order)
+	orderBook.removeOrder(order)
 
 	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
 		t.Error("len error")
@@ -242,7 +266,7 @@ func TestFullOrderBook_RemoveAskOrder(t *testing.T) {
 		t.Error("length error")
 	}
 
-	log.Println(helper.ToJsonString(orderBook))
+	log.Println(base.ToJsonString(orderBook))
 }
 
 func TestFullOrderBook_RemoveBidOrderByIdReal(t *testing.T) {
@@ -259,47 +283,51 @@ func TestFullOrderBook_RemoveBidOrderByIdReal(t *testing.T) {
 	}
 
 	for index, elem := range msg {
-		order, err := NewOrder(elem[0], elem[1], elem[2], uint64(index))
+		order, err := NewOrder(elem[0], base.BidSide, elem[1], elem[2], uint64(index), nil)
 		if err != nil {
 			t.Error(err)
 		}
-		orderBook.AddOrder(BidSide, order)
+		orderBook.AddOrder(order)
 	}
 
 	//PrintFullOrderBook("before", orderBook)
 
 	order, err := NewOrder(
 		"5cf10b0a0bad452af739ed1d",
+		base.BidSide,
 		"8268.3",
 		"0.08",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(BidSide, order)
+	orderBook.AddOrder(order)
 
-	log.Println("add", helper.ToJsonString(orderBook))
-	//orderBook.RemoveByOrderId(BidSide, "5cf10b0a0bad452af739ed1d")
+	log.Println("add", base.ToJsonString(orderBook))
+	//orderBook.RemoveByOrderId(helper.BidSide, "5cf10b0a0bad452af739ed1d")
 	//PrintFullOrderBook("add", orderBook)
 
 	//价格第二
 	order, err = NewOrder(
 		"5cf10b0b89fc846350e8437a",
+		base.BidSide,
 		"8268.3",
 		"0.3141",
 		1559300877511654101,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(BidSide, order)
+	orderBook.AddOrder(order)
 
-	log.Println("after", helper.ToJsonString(orderBook))
+	log.Println("after", base.ToJsonString(orderBook))
 
-	orderBook.RemoveByOrderId(BidSide, "5cf10b0a0bad452af739ed1d")
+	orderBook.RemoveByOrderId("5cf10b0a0bad452af739ed1d")
 
-	log.Println("remove", helper.ToJsonString(orderBook))
+	log.Println("remove", base.ToJsonString(orderBook))
 
 	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
 		t.Error("len error")
@@ -315,19 +343,21 @@ func TestFullOrderBook_RemoveAskOrderById(t *testing.T) {
 	//价格第二
 	order, err := NewOrder(
 		"a2",
+		base.BidSide,
 		"1.102",
 		"2.2",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(BidSide, order)
+	orderBook.AddOrder(order)
 	if orderBook.Bids.Len() != len(orderBook.OrderPool) && len(orderBook.OrderPool) != 1 {
 		t.Error("len error: 1")
 	}
 
-	orderBook.RemoveByOrderId(BidSide, order.OrderId)
+	orderBook.RemoveByOrderId(order.OrderId)
 
 	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
 		t.Error("len error")
@@ -337,7 +367,7 @@ func TestFullOrderBook_RemoveAskOrderById(t *testing.T) {
 		t.Error("length error")
 	}
 
-	log.Println(helper.ToJsonString(orderBook))
+	log.Println(base.ToJsonString(orderBook))
 }
 
 func TestFullOrderBook_RemoveBidNotExistOrder(t *testing.T) {
@@ -346,26 +376,30 @@ func TestFullOrderBook_RemoveBidNotExistOrder(t *testing.T) {
 	//价格第二
 	order, err := NewOrder(
 		"a2",
+		base.BidSide,
 		"1.102",
 		"2.2",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(BidSide, order)
+	orderBook.AddOrder(order)
 
 	//price和time相同
 	order, err = NewOrder(
 		"a5",
+		base.BidSide,
 		"1.102",
 		"5.5",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.removeOrder(BidSide, order)
+	orderBook.removeOrder(order)
 
 	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
 		t.Error("len error")
@@ -375,7 +409,7 @@ func TestFullOrderBook_RemoveBidNotExistOrder(t *testing.T) {
 		t.Error("length error")
 	}
 
-	log.Println(helper.ToJsonString(orderBook))
+	log.Println(base.ToJsonString(orderBook))
 }
 
 func TestFullOrderBook_RemoveBidOrderOfAskOrder(t *testing.T) {
@@ -384,26 +418,30 @@ func TestFullOrderBook_RemoveBidOrderOfAskOrder(t *testing.T) {
 	//价格第二
 	order, err := NewOrder(
 		"a2",
+		base.BidSide,
 		"1.102",
 		"2.2",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(BidSide, order)
+	orderBook.AddOrder(order)
 
 	order, err = NewOrder(
 		"a2",
+		base.AskSide,
 		"1.102",
 		"2.2",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
 	//删除反方向订单
-	orderBook.removeOrder(AskSide, order)
+	orderBook.removeOrder(order)
 
 	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
 		t.Error("len error")
@@ -413,7 +451,7 @@ func TestFullOrderBook_RemoveBidOrderOfAskOrder(t *testing.T) {
 		t.Error("length error")
 	}
 
-	log.Println(helper.ToJsonString(orderBook))
+	log.Println(base.ToJsonString(orderBook))
 }
 
 func TestFullOrderBook_MatchOrder(t *testing.T) {
@@ -421,28 +459,32 @@ func TestFullOrderBook_MatchOrder(t *testing.T) {
 
 	order, err := NewOrder(
 		"a1",
+		base.AskSide,
 		"1.102",
 		"1.1",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(AskSide, order)
+	orderBook.AddOrder(order)
 
 	//价格 时间都相同
 	order, err = NewOrder(
 		"a2",
+		base.AskSide,
 		"1.102",
 		"2.2",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(AskSide, order)
+	orderBook.AddOrder(order)
 
-	if err := orderBook.MatchOrder(AskSide, "a1", "0.2"); err != nil {
+	if err := orderBook.MatchOrder("a1", decimal.NewFromFloat(0.2)); err != nil {
 		t.Error(err)
 	}
 
@@ -458,7 +500,7 @@ func TestFullOrderBook_MatchOrder(t *testing.T) {
 		t.Error("length error")
 	}
 
-	log.Println(helper.ToJsonString(orderBook))
+	log.Println(base.ToJsonString(orderBook))
 }
 
 func TestFullOrderBook_MatchOrderWithDone(t *testing.T) {
@@ -466,16 +508,18 @@ func TestFullOrderBook_MatchOrderWithDone(t *testing.T) {
 
 	order, err := NewOrder(
 		"a1",
+		base.AskSide,
 		"1.102",
 		"1.1",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(AskSide, order)
+	orderBook.AddOrder(order)
 
-	if err := orderBook.MatchOrder(AskSide, order.OrderId, order.Size.String()); err != nil {
+	if err := orderBook.MatchOrder(order.OrderId, order.Size); err != nil {
 		t.Error(err)
 	}
 
@@ -487,7 +531,7 @@ func TestFullOrderBook_MatchOrderWithDone(t *testing.T) {
 		t.Error("length error")
 	}
 
-	log.Println(helper.ToJsonString(orderBook))
+	log.Println(base.ToJsonString(orderBook))
 }
 
 func TestFullOrderBook_ChangeOrder(t *testing.T) {
@@ -495,28 +539,32 @@ func TestFullOrderBook_ChangeOrder(t *testing.T) {
 
 	order, err := NewOrder(
 		"a1",
+		base.AskSide,
 		"1.102",
 		"1.1",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(AskSide, order)
+	orderBook.AddOrder(order)
 
 	//价格 时间都相同
 	order, err = NewOrder(
 		"a2",
+		base.AskSide,
 		"1.102",
 		"2.2",
 		1559300877511654100,
+		nil,
 	)
 	if err != nil {
 		t.Error(err)
 	}
-	orderBook.AddOrder(AskSide, order)
+	orderBook.AddOrder(order)
 
-	if err := orderBook.ChangeOrder(AskSide, "a1", "0.2"); err != nil {
+	if err := orderBook.ChangeOrder("a1", decimal.NewFromFloat(0.2)); err != nil {
 		t.Error(err)
 	}
 
@@ -532,5 +580,5 @@ func TestFullOrderBook_ChangeOrder(t *testing.T) {
 		t.Error("length error")
 	}
 
-	log.Println(helper.ToJsonString(orderBook))
+	log.Println(base.ToJsonString(orderBook))
 }
