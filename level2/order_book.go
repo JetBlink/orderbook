@@ -3,8 +3,8 @@ package level2
 import (
 	"encoding/json"
 
-	"github.com/JetBlink/order_book/helper"
-	"github.com/JetBlink/order_book/skiplist"
+	"github.com/JetBlink/orderbook/helper"
+	"github.com/JetBlink/orderbook/skiplist"
 	"github.com/shopspring/decimal"
 )
 

@@ -4,7 +4,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/JetBlink/order_book/helper"
+	"github.com/JetBlink/orderbook/helper"
 )
 
 func TestOrderBook_SetOrder(t *testing.T) {

@@ -1,4 +1,4 @@
-module github.com/JetBlink/order_book
+module github.com/JetBlink/orderbook
 
 go 1.12
 
