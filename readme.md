@@ -13,4 +13,4 @@ go get -u github.com/JetBlink/orderbook
 * Level3:
 [https://github.com/JetBlink/orderbook/blob/master/level3/order_book_test.go](https://github.com/JetBlink/orderbook/blob/master/level3/order_book_test.go)
 
-### demo: [https://github.com/Kucoin/kucoin-go-level3-demo](https://github.com/Kucoin/kucoin-go-level3-demo)
+### demo: [https://github.com/Kucoin/kucoin-level3-sdk](https://github.com/Kucoin/kucoin-level3-sdk)
