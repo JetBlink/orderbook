@@ -61,6 +61,14 @@ func (n *node) hasPrevious() bool {
 	return n.previous() != nil
 }
 
+func (n *node) Get() interface{} {
+	return n.value
+}
+
+func (n *node) Set(value interface{}) {
+	n.value = value
+}
+
 // A SkipList is a map-like data structure that maintains an ordered
 // collection of key-value pairs. Insertion, lookup, and deletion are
 // all O(log n) operations. A SkipList can efficiently store up to
@@ -374,6 +382,20 @@ func (s *SkipList) Get(key interface{}) (value interface{}, ok bool) {
 	}
 
 	return candidate.value, true
+}
+
+// GetNode returns the node associated with key from s (nil if the key is
+// not present in s). The second return value is true when the key is
+// present.
+func (s *SkipList) GetNode(key interface{}) (value *node, ok bool) {
+	candidate := s.getPath(s.header, nil, key)
+
+	// if candidate == nil || candidate.key != key {
+	if candidate == nil || !s.isEqual(candidate.key, key) {
+		return nil, false
+	}
+
+	return candidate, true
 }
 
 // GetGreaterOrEqual finds the node whose key is greater than or equal

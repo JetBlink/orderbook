@@ -24,7 +24,9 @@ func ToJsonString(v interface{}) string {
 }
 
 const (
+	//ask 是 要价，喊价 卖家 卖单 Sort price from low to high
 	AskSide = "asks"
+	//bid 是 投标，买家 买单 Sort price from high to low
 	BidSide = "bids"
 )
 

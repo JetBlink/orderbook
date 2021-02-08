@@ -92,7 +92,7 @@ func TestOrderBook_AddAskOrder(t *testing.T) {
 	}
 	orderBook.AddOrder(order)
 
-	if orderBook.Asks.Len() != len(orderBook.OrderPool) {
+	if orderBook.Asks.Len() != len(orderBook.orderPool) {
 		t.Error("len error")
 	}
 
@@ -134,7 +134,7 @@ func TestFullOrderBook_AddAskOrderWithExistOrder(t *testing.T) {
 	}
 	orderBook.AddOrder(order)
 
-	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
+	if orderBook.Bids.Len() != len(orderBook.orderPool) {
 		t.Error("len error")
 	}
 
@@ -216,7 +216,7 @@ func TestFullOrderBook_AddBidOrder(t *testing.T) {
 	}
 	orderBook.AddOrder(order)
 
-	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
+	if orderBook.Bids.Len() != len(orderBook.orderPool) {
 		t.Error("len error")
 	}
 
@@ -258,7 +258,7 @@ func TestFullOrderBook_RemoveAskOrder(t *testing.T) {
 	}
 	orderBook.removeOrder(order)
 
-	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
+	if orderBook.Bids.Len() != len(orderBook.orderPool) {
 		t.Error("len error")
 	}
 
@@ -329,7 +329,7 @@ func TestFullOrderBook_RemoveBidOrderByIdReal(t *testing.T) {
 
 	log.Println("remove", base.ToJsonString(orderBook))
 
-	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
+	if orderBook.Bids.Len() != len(orderBook.orderPool) {
 		t.Error("len error")
 	}
 
@@ -353,13 +353,13 @@ func TestFullOrderBook_RemoveAskOrderById(t *testing.T) {
 		t.Error(err)
 	}
 	orderBook.AddOrder(order)
-	if orderBook.Bids.Len() != len(orderBook.OrderPool) && len(orderBook.OrderPool) != 1 {
+	if orderBook.Bids.Len() != len(orderBook.orderPool) && len(orderBook.orderPool) != 1 {
 		t.Error("len error: 1")
 	}
 
 	orderBook.RemoveByOrderId(order.OrderId)
 
-	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
+	if orderBook.Bids.Len() != len(orderBook.orderPool) {
 		t.Error("len error")
 	}
 
@@ -401,7 +401,7 @@ func TestFullOrderBook_RemoveBidNotExistOrder(t *testing.T) {
 	}
 	orderBook.removeOrder(order)
 
-	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
+	if orderBook.Bids.Len() != len(orderBook.orderPool) {
 		t.Error("len error")
 	}
 
@@ -443,7 +443,7 @@ func TestFullOrderBook_RemoveBidOrderOfAskOrder(t *testing.T) {
 	//删除反方向订单
 	orderBook.removeOrder(order)
 
-	if orderBook.Bids.Len() != len(orderBook.OrderPool) {
+	if orderBook.Bids.Len() != len(orderBook.orderPool) {
 		t.Error("len error")
 	}
 
@@ -492,7 +492,7 @@ func TestFullOrderBook_MatchOrder(t *testing.T) {
 		t.Error("error size")
 	}
 
-	if orderBook.Asks.Len() != len(orderBook.OrderPool) {
+	if orderBook.Asks.Len() != len(orderBook.orderPool) {
 		t.Error("len error")
 	}
 
@@ -523,7 +523,7 @@ func TestFullOrderBook_MatchOrderWithDone(t *testing.T) {
 		t.Error(err)
 	}
 
-	if orderBook.Asks.Len() != len(orderBook.OrderPool) {
+	if orderBook.Asks.Len() != len(orderBook.orderPool) {
 		t.Error("len error")
 	}
 
@@ -572,7 +572,7 @@ func TestFullOrderBook_ChangeOrder(t *testing.T) {
 		t.Error("error size")
 	}
 
-	if orderBook.Asks.Len() != len(orderBook.OrderPool) {
+	if orderBook.Asks.Len() != len(orderBook.orderPool) {
 		t.Error("len error")
 	}
 

@@ -10,18 +10,16 @@ import (
 )
 
 type OrderBook struct {
-	Sequence  uint64             //Sequence || UpdateID
 	Asks      *skiplist.SkipList //ask 是 要价，喊价 卖家 卖单 Sort price from low to high
 	Bids      *skiplist.SkipList //bid 是 投标，买家 买单 Sort price from high to low
-	OrderPool map[string]*Order
+	orderPool map[string]*Order
 }
 
 func NewOrderBook() *OrderBook {
 	return &OrderBook{
-		Sequence:  0,
 		Asks:      newAskOrders(),
 		Bids:      newBidOrders(),
-		OrderPool: make(map[string]*Order),
+		orderPool: make(map[string]*Order),
 	}
 }
 
@@ -87,13 +85,13 @@ func (ob *OrderBook) AddOrder(order *Order) error {
 	}
 
 	orderBook.Set(order, order)
-	ob.OrderPool[order.OrderId] = order
+	ob.orderPool[order.OrderId] = order
 	return nil
 }
 
 //done 事件
 func (ob *OrderBook) RemoveByOrderId(orderId string) error {
-	order, ok := ob.OrderPool[orderId]
+	order, ok := ob.orderPool[orderId]
 	if !ok {
 		return nil
 	}
@@ -110,14 +108,14 @@ func (ob *OrderBook) removeOrder(order *Order) error {
 		return err
 	}
 	if _, ok := orderBook.Delete(order); ok {
-		delete(ob.OrderPool, order.OrderId)
+		delete(ob.orderPool, order.OrderId)
 	}
 
 	return nil
 }
 
 func (ob *OrderBook) GetOrder(orderId string) *Order {
-	order, ok := ob.OrderPool[orderId]
+	order, ok := ob.orderPool[orderId]
 	if !ok {
 		return nil
 	}
@@ -127,7 +125,7 @@ func (ob *OrderBook) GetOrder(orderId string) *Order {
 
 //更新, match 事件
 func (ob *OrderBook) MatchOrder(orderId string, size decimal.Decimal) error {
-	order, ok := ob.OrderPool[orderId]
+	order, ok := ob.orderPool[orderId]
 	if !ok {
 		return nil
 	}
@@ -150,7 +148,7 @@ func (ob *OrderBook) MatchOrder(orderId string, size decimal.Decimal) error {
 
 //替换, change 事件
 func (ob *OrderBook) ChangeOrder(orderId string, size decimal.Decimal) error {
-	order, ok := ob.OrderPool[orderId]
+	order, ok := ob.orderPool[orderId]
 	if !ok {
 		return nil
 	}
@@ -167,13 +165,13 @@ func (ob *OrderBook) ChangeOrder(orderId string, size decimal.Decimal) error {
 
 func (ob *OrderBook) MarshalJSON() ([]byte, error) {
 	return json.Marshal(map[string]interface{}{
-		"sequence":   ob.Sequence,
-		base.AskSide: ob.GetPartOrderBookBySide(base.AskSide, 0),
-		base.BidSide: ob.GetPartOrderBookBySide(base.BidSide, 0),
+		base.AskSide: ob.GetL3PartOrderBookBySide(base.AskSide, 0),
+		base.BidSide: ob.GetL3PartOrderBookBySide(base.BidSide, 0),
 	})
 }
 
-func (ob *OrderBook) GetPartOrderBookBySide(side string, number int) [][3]string {
+// Level3 OrderBook
+func (ob *OrderBook) GetL3PartOrderBookBySide(side string, number int) [][3]string {
 	if err := base.CheckSide(side); err != nil {
 		return nil
 	}
@@ -181,28 +179,78 @@ func (ob *OrderBook) GetPartOrderBookBySide(side string, number int) [][3]string
 	var it skiplist.Iterator
 	if side == base.AskSide {
 		it = ob.Asks.Iterator()
-		number = base.Min(number, ob.Asks.Len())
 		if number == 0 {
 			number = ob.Asks.Len()
+		} else {
+			number = base.Min(number, ob.Asks.Len())
 		}
 	} else {
 		it = ob.Bids.Iterator()
-		number = base.Min(number, ob.Bids.Len())
-
 		if number == 0 {
 			number = ob.Bids.Len()
+		} else {
+			number = base.Min(number, ob.Bids.Len())
 		}
 	}
+	arr := make([][3]string, 0, number)
 
-	arr := make([][3]string, number)
-	it.Next()
-
-	for i := 0; i < number; i++ {
-		order := it.Value().(*Order)
-		arr[i] = [3]string{order.OrderId, order.Price.String(), order.Size.String()}
-		if !it.Next() {
+	for it.Next() {
+		if len(arr) >= number {
 			break
 		}
+
+		order := it.Value().(*Order)
+		arr = append(arr, [3]string{order.OrderId, order.Price.String(), order.Size.String()})
+	}
+
+	return arr
+}
+
+// Level2 OrderBook
+func (ob *OrderBook) GetPartOrderBookBySide(side string, number int) [][2]string {
+	if err := base.CheckSide(side); err != nil {
+		return nil
+	}
+
+	var it skiplist.Iterator
+	if side == base.AskSide {
+		it = ob.Asks.Iterator()
+		if number == 0 {
+			number = ob.Asks.Len()
+		} else {
+			number = base.Min(number, ob.Asks.Len())
+		}
+	} else {
+		it = ob.Bids.Iterator()
+		if number == 0 {
+			number = ob.Bids.Len()
+		} else {
+			number = base.Min(number, ob.Bids.Len())
+		}
+	}
+	arr := make([][2]string, 0, number)
+
+	lastPrice := decimal.Zero
+	lastPriceSize := decimal.Zero
+
+	for it.Next() {
+		if len(arr) >= number {
+			break
+		}
+
+		order := it.Value().(*Order)
+		if lastPrice.Equal(decimal.Zero) {
+			lastPrice = order.Price
+			lastPriceSize = order.Size
+			continue
+		}
+		if lastPrice.Equal(order.Price) {
+			lastPriceSize = lastPriceSize.Add(order.Size)
+			continue
+		}
+		arr = append(arr, [2]string{lastPrice.String(), lastPriceSize.String()})
+		lastPrice = order.Price
+		lastPriceSize = order.Size
 	}
 
 	return arr

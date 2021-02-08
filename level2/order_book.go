@@ -9,14 +9,12 @@ import (
 )
 
 type OrderBook struct {
-	Sequence uint64             //Sequence || UpdateID
-	Asks     *skiplist.SkipList //ask 是 要价，喊价 卖家 卖单 Sort price from low to high
-	Bids     *skiplist.SkipList //bid 是 投标，买家 买单 Sort price from high to low
+	Asks *skiplist.SkipList //ask 是 要价，喊价 卖家 卖单 Sort price from low to high
+	Bids *skiplist.SkipList //bid 是 投标，买家 买单 Sort price from high to low
 }
 
 func NewOrderBook() *OrderBook {
 	return &OrderBook{
-		0,
 		newAskOrders(),
 		newBidOrders(),
 	}
@@ -49,6 +47,11 @@ func newBidOrders() *skiplist.SkipList {
 	}, isEqual)
 }
 
+func (ob *OrderBook) Reset() {
+	ob.Asks = newAskOrders()
+	ob.Bids = newBidOrders()
+}
+
 func (ob *OrderBook) getOrderBookBySide(side string) (*skiplist.SkipList, error) {
 	if err := base.CheckSide(side); err != nil {
 		return nil, err
@@ -68,7 +71,7 @@ func (ob *OrderBook) SetOrder(side string, order *Order) error {
 		return err
 	}
 
-	if order.Size.Equal(decimal.Zero) {
+	if order.Size.IsZero() {
 		orderBook.Delete(order.Price)
 		return nil
 	}
@@ -79,7 +82,6 @@ func (ob *OrderBook) SetOrder(side string, order *Order) error {
 
 func (ob *OrderBook) MarshalJSON() ([]byte, error) {
 	return json.Marshal(map[string]interface{}{
-		"sequence":   ob.Sequence,
 		base.AskSide: ob.GetPartOrderBookBySide(base.AskSide, 0),
 		base.BidSide: ob.GetPartOrderBookBySide(base.BidSide, 0),
 	})
@@ -93,16 +95,17 @@ func (ob *OrderBook) GetPartOrderBookBySide(side string, number int) [][2]string
 	var it skiplist.Iterator
 	if side == base.AskSide {
 		it = ob.Asks.Iterator()
-		number = base.Min(number, ob.Asks.Len())
 		if number == 0 {
 			number = ob.Asks.Len()
+		} else {
+			number = base.Min(number, ob.Asks.Len())
 		}
 	} else {
 		it = ob.Bids.Iterator()
-		number = base.Min(number, ob.Bids.Len())
-
 		if number == 0 {
 			number = ob.Bids.Len()
+		} else {
+			number = base.Min(number, ob.Bids.Len())
 		}
 	}
 
