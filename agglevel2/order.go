@@ -1,4 +1,4 @@
-package agg_l2
+package agglevel2
 
 import (
 	"fmt"
